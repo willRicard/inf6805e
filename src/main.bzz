@@ -1,0 +1,9 @@
+function init() {
+  log("Hello, world! ", id);
+}
+
+function step() {}
+
+function reset() {}
+
+function destroy() {}
