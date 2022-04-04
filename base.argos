@@ -27,8 +27,13 @@
       </params>
     </buzz_controller_kheperaiv>
   </controllers>
+  <loop_functions library="build/libforaging_loop_functions"
+  label="foraging_loop_functions">
+    <foraging items="15" radius="0.1" energy_per_item="1000"
+    energy_per_walking_robot="1" output="foraging.txt" />
+  </loop_functions>
   <arena size="5, 5, 2" center="0,0,1">
-    <!--<floor id="floor" source="loop_functions" pixels_per_meter="50"/>-->
+    <floor id="floor" source="loop_functions" pixels_per_meter="50"/>
     <box id="wall_north" size="4,0.1,0.5" movable="false">
       <body position="0,2,0" orientation="0,0,0" />
     </box>

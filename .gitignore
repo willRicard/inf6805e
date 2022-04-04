@@ -1,2 +1,4 @@
 *.bo
 *.bdb
+build/*
+foraging.txt
