@@ -8,6 +8,6 @@ add_library(foraging_loop_functions SHARED
   lib/foraging_loop_functions.h
   lib/foraging_loop_functions.cpp)
 
-target_include_directories(foraging_loop_functions PUBLIC ${ARGOS_INCLUDE_DIRECTORIES})
+target_include_directories(foraging_loop_functions PUBLIC ${ARGOS_INCLUDE_DIRS})
 
-target_link_libraries(foraging_loop_functions PUBLIC ${ARGOS_LIBRARY})
+target_link_libraries(foraging_loop_functions PUBLIC ${ARGOS_LDFLAGS})
