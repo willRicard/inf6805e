@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<argos-configuration>
+  <framework>
+    <system threads="0" />
+    <experiment length="0" ticks_per_second="10"
+    random_seed="90" />
+  </framework>
+  <controllers>
+    <buzz_controller_kheperaiv id="faultMap">
+      <actuators>
+        <differential_steering implementation="default" />
+        <leds implementation="default" medium="leds" />
+        <range_and_bearing implementation="default" />
+      </actuators>
+      <sensors>
+        <kheperaiv_proximity implementation="default"
+        show_rays="true" />
+        <range_and_bearing implementation="medium" medium="rab"
+        show_rays="false" noise_std_dev="0" />
+        <positioning implementation="default" />
+      </sensors>
+      <params bytecode_file="build/main.bo"
+      debug_file="build/main.bdb">
+        <wheel_turning hard_turn_angle_threshold="90"
+        soft_turn_angle_threshold="70" no_turn_angle_threshold="10"
+        max_speed="10" />
+      </params>
+    </buzz_controller_kheperaiv>
+  </controllers>
+  <arena size="5, 5, 2" center="0,0,1">
+    <!--<floor id="floor" source="loop_functions" pixels_per_meter="50"/>-->
+    <box id="wall_north" size="4,0.1,0.5" movable="false">
+      <body position="0,2,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_south" size="4,0.1,0.5" movable="false">
+      <body position="0,-2,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_east" size="0.1,4,0.5" movable="false">
+      <body position="2,0,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_west" size="0.1,4,0.5" movable="false">
+      <body position="-2,0,0" orientation="0,0,0" />
+    </box>
+    <distribute>
+      <position method="uniform" min="-2,-2,0" max="-1,2,0" />
+      <orientation method="uniform" min="0,0,0" max="360,0,0" />
+      <entity quantity="20" max_trials="100">
+        <kheperaiv id="kiv">
+          <controller config="faultMap" />
+        </kheperaiv>
+      </entity>
+    </distribute>
+    <box id="wall00" size="0.1,0.5,0.5" movable="false"><body position="-0.5,1.75,0"  orientation="0,0,0"/></box>
+    <box id="wall01" size="0.1,0.5,0.5" movable="false"><body position="0.5,1.75,0"  orientation="0,0,0"/></box>
+    <box id="wall02" size="0.1,0.5,0.5" movable="false"><body position="1.5,1.75,0"  orientation="0,0,0"/></box>
+    <box id="wallA" size="0.5,0.1,0.5" movable="false"><body position="0.75,1.5,0" orientation="0,0,0"/></box>
+    <box id="wall10" size="0.1,0.5,0.5" movable="false"><body position="0,1.25,0"  orientation="0,0,0"/></box>
+    <box id="wall11" size="0.1,0.5,0.5" movable="false"><body position="0.5,1.25,0"  orientation="0,0,0"/></box>
+    <box id="wallB" size="0.5,0.1,0.5" movable="false"><body position="1.25,1.0,0" orientation="0,0,0"/></box>
+    <box id="wall20" size="0.1,0.5,0.5" movable="false"><body position="-0.5,0.75,0"  orientation="0,0,0"/></box>
+    <box id="wall21" size="0.1,0.5,0.5" movable="false"><body position="0,0.75,0"  orientation="0,0,0"/></box>
+    <box id="wall22" size="0.1,0.5,0.5" movable="false"><body position="0.5,0.75,0"  orientation="0,0,0"/></box>
+    <box id="wall23" size="0.1,0.5,0.5" movable="false"><body position="1.5,0.75,0"  orientation="0,0,0"/></box>
+    <box id="wallC" size="0.5,0.1,0.5" movable="false"><body position="0.25,0.5,0" orientation="0,0,0"/></box>
+    <box id="wallD" size="0.5,0.1,0.5" movable="false"><body position="0.75,0.5,0" orientation="0,0,0"/></box>
+    <box id="wall30" size="0.1,0.5,0.5" movable="false"><body position="1.0,0.25,0"  orientation="0,0,0"/></box>
+    <box id="wall31" size="0.1,0.5,0.5" movable="false"><body position="1.5,0.25,0"  orientation="0,0,0"/></box>
+    <box id="wallE" size="0.5,0.1,0.5" movable="false"><body position="-0.25,0,0" orientation="0,0,0"/></box>
+    <box id="wallF" size="0.5,0.1,0.5" movable="false"><body position="0.25,0,0" orientation="0,0,0"/></box>
+    <box id="wall40" size="0.1,0.5,0.5" movable="false"><body position="0.5,-0.25,0"  orientation="0,0,0"/></box>
+    <box id="wall41" size="0.1,0.5,0.5" movable="false"><body position="1.5,-0.25,0"  orientation="0,0,0"/></box>
+    <box id="wallG" size="0.5,0.1,0.5" movable="false"><body position="-0.25,-0.5,0" orientation="0,0,0"/></box>
+    <box id="wallH" size="0.5,0.1,0.5" movable="false"><body position="0.75,-0.5,0" orientation="0,0,0"/></box>
+    <box id="wallI" size="0.5,0.1,0.5" movable="false"><body position="1.25,-0.5,0" orientation="0,0,0"/></box>
+    <box id="wall50" size="0.1,0.5,0.5" movable="false"><body position="-0.5,-0.75,0"  orientation="0,0,0"/></box>
+    <box id="wall51" size="0.1,0.5,0.5" movable="false"><body position="0.5,-0.75,0"  orientation="0,0,0"/></box>
+    <box id="wall52" size="0.1,0.5,0.5" movable="false"><body position="1.5,-0.75,0"  orientation="0,0,0"/></box>
+    <box id="wallJ" size="0.5,0.1,0.5" movable="false"><body position="0.25,-1,0" orientation="0,0,0"/></box>
+    <box id="wall60" size="0.1,0.5,0.5" movable="false"><body position="0,-1.25,0"  orientation="0,0,0"/></box>
+    <box id="wall61" size="0.1,0.5,0.5" movable="false"><body position="1,-1.25,0"  orientation="0,0,0"/></box>
+    <box id="wallK" size="0.5,0.1,0.5" movable="false"><body position="0.75,-1.5,0" orientation="0,0,0"/></box>
+    <box id="wall70" size="0.1,0.5,0.5" movable="false"><body position="-0.5,-1.75,0"  orientation="0,0,0"/></box>
+    <box id="wall71" size="0.1,0.5,0.5" movable="false"><body position="0.5,-1.75,0"  orientation="0,0,0"/></box>
+    <box id="wall72" size="0.1,0.5,0.5" movable="false"><body position="1.5,-1.75,0"  orientation="0,0,0"/></box>
+  </arena>
+  <physics_engines>
+    <dynamics2d id="dyn2d" />
+  </physics_engines>
+  <media>
+    <range_and_bearing id="rab" />
+    <led id="leds" />
+  </media>
+  <visualization>
+    <qt-opengl>
+      <camera>
+        <placements>
+          <placement index="0" position="0,0,100" look_at="0,0,0"
+          up="0,1,0" lens_focal_length="500" />
+        </placements>
+      </camera>
+      <user_functions label="buzz_qt" show_buzz_editor="false" />
+    </qt-opengl>
+  </visualization>
+</argos-configuration>
