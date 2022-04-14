@@ -1,8 +1,49 @@
+SPEED = 100
+MAX_ANGULAR = 1.0
+MAX_STEPS_RANDOM = 40
+
 function init() {
-  log("Hello, world! ", id);
+  math.rng.setseed(id)
+  reset_random_walk()
 }
 
-function step() {}
+function step() {
+  gotop(SPEED, update_angular_vel_random())
+}
+
+# Function to compute the random angular velocity when doing a random walk
+function update_angular_vel_random() {
+  random_steps = random_steps + 1
+  if (random_steps <= next_random_update) {
+    current_angular_vel = angular_vel * gaussian(random_steps - (next_random_update / 2))
+  } else {
+    current_angular_vel = reset_random_walk()
+  }
+  return current_angular_vel
+}
+
+# Function to reset random walk
+function reset_random_walk() {
+  next_random_update = math.rng.uniform(MAX_STEPS_RANDOM-10, MAX_STEPS_RANDOM)
+  angular_vel = math.rng.uniform(-MAX_ANGULAR, MAX_ANGULAR)
+  random_steps = 0
+  return angular_vel
+}
+
+# Compute a gaussian centered at 0, with std c and height 1
+function gaussian(x) {
+  a = 1.0
+  c = 10.0
+  res = math.exp(-(x * x) / (2.0 * c * c))
+  return res
+}
+
+# Log only for a specific robot
+function logg(str, rid) {
+  if (id == rid) {
+    log(str)
+  }
+}
 
 function reset() {}
 
