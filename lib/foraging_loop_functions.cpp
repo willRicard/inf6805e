@@ -4,9 +4,14 @@
 #include <argos3/plugins/robots/kheperaiv/simulator/kheperaiv_entity.h>
 
 #include <iostream>
+#include <map>
+
+#include "foraging_buzz_controller_kheperaiv.h"
 
 /****************************************/
 /****************************************/
+
+static std::map<int, int> gZones;
 
 SFoodData::SFoodData()
     : HasFoodItem(false), FoodItemIdx(0), TotalFoodItems(0) {}
@@ -132,81 +137,41 @@ CForagingLoopFunctions::GetFloorColor(const CVector2 &c_position_on_plane) {
 /****************************************/
 /****************************************/
 
-void CForagingLoopFunctions::PreStep() {
-  // TODO: Fix crash by implementing custom controller
-  return;
-  /* Logic to pick and drop food items */
-  /*
-   * If a robot is in the nest, drop the food item
-   * If a robot is on a food item, pick it
-   * Each robot can carry only one food item per time
-   */
-  UInt32 unWalkingFBs = 0;
-  UInt32 unRestingFBs = 0;
-  /* Check whether a robot is on a food item */
-  CSpace::TMapPerType &m_cBots = GetSpace().GetEntitiesByType("kheperaiv");
+int CForagingLoopFunctions::GetZone(int id) {
+  return gZones[id];
+}
 
+void CForagingLoopFunctions::PreStep() {
+  CSpace::TMapPerType &m_cBots = GetSpace().GetEntitiesByType("kheperaiv");
+  int i = 0;
   for (CSpace::TMapPerType::iterator it = m_cBots.begin(); it != m_cBots.end();
-       ++it) {
-    std::cout << "ok" << std::endl;
-    /* Get handle to kheperaiv entity and controller */
-    CKheperaIVEntity &cBot = *any_cast<CKheperaIVEntity *>(it->second);
-    // CFootBotForaging& cController =
-    // dynamic_cast<CFootBotForaging&>(cBot.GetControllableEntity().GetController());
-    auto cController = cBot.GetControllableEntity().GetController();
-    /* Get the position of the foot-bot on the ground as a CVector2 */
-    CVector2 cPos;
-    cPos.Set(cBot.GetEmbodiedEntity().GetOriginAnchor().Position.GetX(),
-             cBot.GetEmbodiedEntity().GetOriginAnchor().Position.GetY());
-    std::cout << cPos.GetX() << " " << cPos.GetY() << std::endl;
-    /* Get food data */
-    SFoodData sFoodData;
-    /* The foot-bot has a food item */
-    if (sFoodData.HasFoodItem) {
-      /* Check whether the foot-bot is in the nest */
-      if (cPos.GetX() < -1.8f) {
-        /* Place a new food item on the ground */
-        m_cFoodPos[sFoodData.FoodItemIdx].Set(
-            m_pcRNG->Uniform(m_cForagingArenaSideX),
-            m_pcRNG->Uniform(m_cForagingArenaSideY));
-        /* Drop the food item */
-        sFoodData.HasFoodItem = false;
-        sFoodData.FoodItemIdx = 0;
-        ++sFoodData.TotalFoodItems;
-        /* Increase the energy and food count */
-        m_nEnergy += m_unEnergyPerFoodItem;
-        ++m_unCollectedFood;
-        /* The floor texture must be updated */
-        m_pcFloor->SetChanged();
-      }
-    } else {
-      /* The foot-bot has no food item */
-      /* Check whether the foot-bot is out of the nest */
-      if (cPos.GetX() > -1.8f) {
-        /* Check whether the foot-bot is on a food item */
-        bool bDone = false;
-        for (size_t i = 0; i < m_cFoodPos.size() && !bDone; ++i) {
-          if ((cPos - m_cFoodPos[i]).SquareLength() < m_fFoodSquareRadius) {
-            /* If so, we move that item out of sight */
-            m_cFoodPos[i].Set(100.0f, 100.f);
-            /* The foot-bot is now carrying an item */
-            sFoodData.HasFoodItem = true;
-            sFoodData.FoodItemIdx = i;
-            /* The floor texture must be updated */
-            m_pcFloor->SetChanged();
-            /* We are done */
-            bDone = true;
-          }
-        }
+      ++it) {
+    CKheperaIVEntity *cBot = any_cast<CKheperaIVEntity*>(it->second);
+    CForagingBuzzControllerKheperaIV &cController = dynamic_cast<CForagingBuzzControllerKheperaIV&>(cBot->GetControllableEntity().GetController());
+    CVector3 cPos = cController.GetPos();
+
+    int zone = 0;
+    CVector2 c_position_on_plane(cPos.GetX(), cPos.GetY());
+
+    for (UInt32 i = 0; i < m_cFoodPos.size(); ++i) {
+      if ((c_position_on_plane - m_cFoodPos[i]).SquareLength() <
+          m_fFoodSquareRadius) {
+        zone = 1;
+        break;
       }
     }
+
+    for (UInt32 i = 0; i < m_cDangerPos.size(); ++i) {
+      if ((c_position_on_plane - m_cDangerPos[i]).SquareLength() <
+          m_fDangerZoneRadius) {
+        zone = 2;
+        break;
+      }
+    }
+    gZones[i] = zone;
+    std::cout << "(x=" << cPos.GetX() << ",y=" << cPos.GetY() << "): " << zone << std::endl;
+    ++i;
   }
-  /* Update energy expediture due to walking robots */
-  m_nEnergy -= unWalkingFBs * m_unEnergyPerWalkingRobot;
-  /* Output stuff to file */
-  m_cOutput << GetSpace().GetSimulationClock() << "\t" << unWalkingFBs << "\t"
-            << unRestingFBs << "\t" << m_unCollectedFood << "\t" << m_nEnergy
-            << std::endl;
 }
 
 /****************************************/

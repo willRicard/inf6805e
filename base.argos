@@ -6,7 +6,8 @@
     random_seed="90" />
   </framework>
   <controllers>
-    <buzz_controller_kheperaiv id="faultMap">
+    <foraging_buzz_controller_kheperaiv id="faultMap"
+      library="build/libforaging_buzz_controller_kheperaiv">
       <actuators>
         <differential_steering implementation="default" />
         <leds implementation="default" medium="leds" />
@@ -25,7 +26,7 @@
         soft_turn_angle_threshold="70" no_turn_angle_threshold="10"
         max_speed="10" />
       </params>
-    </buzz_controller_kheperaiv>
+    </foraging_buzz_controller_kheperaiv>
   </controllers>
   <loop_functions library="build/libforaging_loop_functions"
   label="foraging_loop_functions">
