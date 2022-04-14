@@ -164,6 +164,9 @@ void CForagingLoopFunctions::PreStep() {
     for (UInt32 i = 0; i < m_cFoodPos.size(); ++i) {
       if ((c_position_on_plane - m_cFoodPos[i]).SquareLength() <
           m_fFoodSquareRadius) {
+        m_cFoodPos[i].Set(m_pcRNG->Uniform(m_cForagingArenaSideX),
+                                                  m_pcRNG->Uniform(m_cForagingArenaSideY));
+        m_pcFloor->SetChanged();
         zone = 1;
         break;
       }

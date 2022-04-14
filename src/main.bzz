@@ -138,7 +138,6 @@ function check_avoidance() {
 			max_idx = i
 		}
 	}
-
 	return max_idx
 }
 
