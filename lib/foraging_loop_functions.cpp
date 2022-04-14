@@ -36,6 +36,13 @@ void CForagingLoopFunctions::Init(TConfigurationNode &t_node) {
     /* Get the number of food items we want to be scattered from XML */
     GetNodeAttribute(tForaging, "radius", m_fFoodSquareRadius);
     m_fFoodSquareRadius *= m_fFoodSquareRadius;
+
+    // Get danger zones attributes
+    UInt32 unDangerZones;
+    GetNodeAttribute(tForaging, "dangerzones", unDangerZones);
+    GetNodeAttribute(tForaging, "radiusdanger", m_fDangerZoneRadius);
+    m_fDangerZoneRadius *= m_fDangerZoneRadius;
+
     /* Create a new RNG */
     m_pcRNG = CRandom::CreateRNG("argos");
     /* Distribute uniformly the items in the environment */
@@ -43,6 +50,13 @@ void CForagingLoopFunctions::Init(TConfigurationNode &t_node) {
       m_cFoodPos.push_back(CVector2(m_pcRNG->Uniform(m_cForagingArenaSideX),
                                     m_pcRNG->Uniform(m_cForagingArenaSideY)));
     }
+
+    // Distribute the Danger zones uniformly
+    for (UInt32 i = 0; i < unFoodItems; ++i) {
+      m_cDangerPos.push_back(CVector2(m_pcRNG->Uniform(m_cForagingArenaSideX),
+                                    m_pcRNG->Uniform(m_cForagingArenaSideY)));
+    }
+
     /* Get the output file name from XML */
     GetNodeAttribute(tForaging, "output", m_strOutput);
     /* Open the file, erasing its contents */
@@ -50,6 +64,8 @@ void CForagingLoopFunctions::Init(TConfigurationNode &t_node) {
                    std::ios_base::trunc | std::ios_base::out);
     m_cOutput << "# clock\twalking\tresting\tcollected_food\tenergy"
               << std::endl;
+
+
     /* Get energy gain per item collected */
     GetNodeAttribute(tForaging, "energy_per_item", m_unEnergyPerFoodItem);
     /* Get energy loss per walking robot */
@@ -96,6 +112,14 @@ CForagingLoopFunctions::GetFloorColor(const CVector2 &c_position_on_plane) {
   if (c_position_on_plane.GetX() < -1.0f) {
     return CColor::GRAY50;
   }
+
+  for (UInt32 i = 0; i < m_cDangerPos.size(); ++i) {
+    if ((c_position_on_plane - m_cDangerPos[i]).SquareLength() <
+        m_fDangerZoneRadius) {
+      return CColor::RED;
+    }
+  }
+
   for (UInt32 i = 0; i < m_cFoodPos.size(); ++i) {
     if ((c_position_on_plane - m_cFoodPos[i]).SquareLength() <
         m_fFoodSquareRadius) {
