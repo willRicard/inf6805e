@@ -9,9 +9,11 @@ CVector3 CForagingBuzzControllerKheperaIV::GetPos() {
 }
 
 int BuzzGetZone(buzzvm_t vm) {
+
   buzzvm_lload(vm, 1);
   buzzobj_t buzz_id = buzzvm_stack_at(vm, 1);
   int id = 0;
+
   if (buzz_id->o.type == BUZZTYPE_INT) {
     id = buzz_id->i.value;
   } else {

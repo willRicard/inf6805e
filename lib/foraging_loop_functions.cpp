@@ -153,6 +153,14 @@ void CForagingLoopFunctions::PreStep() {
     int zone = 0;
     CVector2 c_position_on_plane(cPos.GetX(), cPos.GetY());
 
+    for (UInt32 i = 0; i < m_cDangerPos.size(); ++i) {
+      if ((c_position_on_plane - m_cDangerPos[i]).SquareLength() <
+          m_fDangerZoneRadius) {
+        zone = 2;
+        break;
+      }
+    }
+
     for (UInt32 i = 0; i < m_cFoodPos.size(); ++i) {
       if ((c_position_on_plane - m_cFoodPos[i]).SquareLength() <
           m_fFoodSquareRadius) {
@@ -161,15 +169,11 @@ void CForagingLoopFunctions::PreStep() {
       }
     }
 
-    for (UInt32 i = 0; i < m_cDangerPos.size(); ++i) {
-      if ((c_position_on_plane - m_cDangerPos[i]).SquareLength() <
-          m_fDangerZoneRadius) {
-        zone = 2;
-        break;
-      }
+    if (cPos.GetX() < -1.8) {
+      zone = 3;
     }
     gZones[i] = zone;
-    std::cout << "(x=" << cPos.GetX() << ",y=" << cPos.GetY() << "): " << zone << std::endl;
+    // std::cout << "(x=" << cPos.GetX() << ",y=" << cPos.GetY() << "): " << zone << std::endl;
     ++i;
   }
 }
