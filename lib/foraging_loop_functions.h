@@ -35,6 +35,8 @@ public:
   virtual CColor GetFloorColor(const CVector2 &c_position_on_plane);
   virtual void PreStep();
 
+  static int GetZone(int id);
+
 private:
   Real m_fFoodSquareRadius;
   Real m_fDangerZoneRadius;
