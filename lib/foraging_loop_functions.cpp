@@ -52,7 +52,7 @@ void CForagingLoopFunctions::Init(TConfigurationNode &t_node) {
     }
 
     // Distribute the Danger zones uniformly
-    for (UInt32 i = 0; i < unFoodItems; ++i) {
+    for (UInt32 i = 0; i < unDangerZones; ++i) {
       m_cDangerPos.push_back(CVector2(m_pcRNG->Uniform(m_cForagingArenaSideX),
                                     m_pcRNG->Uniform(m_cForagingArenaSideY)));
     }
