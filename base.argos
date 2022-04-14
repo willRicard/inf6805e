@@ -30,8 +30,8 @@
   </controllers>
   <loop_functions library="build/libforaging_loop_functions"
   label="foraging_loop_functions">
-    <foraging items="15" radius="0.05" energy_per_item="1000"
-    energy_per_walking_robot="1" output="foraging.txt" dangerzones="8"
+    <foraging items="40" radius="0.05" energy_per_item="1000"
+    energy_per_walking_robot="1" output="foraging.txt" dangerzones="10"
     radiusdanger="0.15"/>
   </loop_functions>
   <arena size="5, 5, 2" center="0,0,1">
@@ -49,8 +49,8 @@
       <body position="-2,0,0" orientation="0,0,0" />
     </box>
     <distribute>
-      <position method="uniform" min="-2,-2,0" max="-1,2,0" />
-      <orientation method="uniform" min="0,0,0" max="360,0,0" />
+      <position method="uniform" min="-2,-2,0" max="-1.8,2,0" />
+      <orientation method="constant" values="0,0,0"/>
       <entity quantity="10" max_trials="100">
         <kheperaiv id="kiv">
           <controller config="faultMap" />

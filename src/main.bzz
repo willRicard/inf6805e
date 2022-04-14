@@ -1,8 +1,99 @@
+SPEED = 100
+MAX_ANGULAR = 1.0
+MAX_STEPS_RANDOM = 40
+
+RIGHT_SENSOR = 7
+LEFT_SENSOR = 1
+FRONT_SENSOR = 0
+FAR_RIGHT_TENSOR = 6
+FAR_LEFT_TENSOR = 2
+THRESHOLD = 0.0
+AVOID_MULT = -2.0
+ANGULAR_SPEED_AVOID = 1.0
+
 function init() {
-  log("Hello, world! ", id);
+  math.rng.setseed(id)
+  reset_random_walk()
 }
 
-function step() {}
+function step() {
+	random_walk()
+}
+
+function random_walk() {
+	idx = check_avoidance()
+	if (idx == -1) {
+		gotop(SPEED, get_angular_vel_random())
+	} else {
+		gotop(SPEED / 4.0, get_angular_vel_avoid(idx))
+	}
+}
+
+# Get angular velocity if we need to turn
+function get_angular_vel_avoid() {
+	if (idx < 4) {
+		return -ANGULAR_SPEED_AVOID
+	} else {
+		return ANGULAR_SPEED_AVOID
+	}
+}
+
+# Function to compute the random angular velocity when doing a random walk
+function get_angular_vel_random() {
+  random_steps = random_steps + 1
+  if (random_steps <= next_random_update) {
+    current_angular_vel = angular_vel * gaussian(random_steps - (next_random_update / 2))
+  } else {
+    current_angular_vel = reset_random_walk()
+  }
+  return current_angular_vel
+}
+
+# Function to reset random walk
+function reset_random_walk() {
+  next_random_update = math.rng.uniform(MAX_STEPS_RANDOM-10, MAX_STEPS_RANDOM)
+  angular_vel = math.rng.uniform(-MAX_ANGULAR, MAX_ANGULAR)
+  random_steps = 0
+  return angular_vel
+}
+
+# Find the nearest obstacle and turn accordingly
+function check_avoidance() {
+	max_val = THRESHOLD
+	max_idx = -1
+
+	for (i=0, i<8, i=i+1) {
+		if (proximity[i].value > max_val) {
+			max_val = proximity[i].value
+			max_idx = i
+		}
+	}
+
+	return max_idx
+}
+
+# Compute a gaussian centered at 0, with std c and height 1
+function gaussian(x) {
+  a = 1.0
+  c = 10.0
+  res = math.exp(-(x * x) / (2.0 * c * c))
+  return res
+}
+
+# Log only for a specific robot
+function logg(str, rid) {
+  if (id == rid) {
+    log(str)
+  }
+}
+
+function sign(num) {
+  if (num < 0.0) {
+    return -1.0;
+  } else {
+    return 1.0;
+  }
+}
 
 function reset() {}
 
