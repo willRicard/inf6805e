@@ -1,52 +1,122 @@
+# Random Walk parameters
 SPEED = 100
 MAX_ANGULAR = 1.0
 MAX_STEPS_RANDOM = 40
 
-RIGHT_SENSOR = 7
-LEFT_SENSOR = 1
-FRONT_SENSOR = 0
-FAR_RIGHT_TENSOR = 6
-FAR_LEFT_TENSOR = 2
+# Obstacle Avoidance PArameters
 THRESHOLD = 0.0
-AVOID_MULT = -2.0
 ANGULAR_SPEED_AVOID = 1.0
+
+# Leave Nest Parameters
+NEST_THRESHOLD = 0.1
+
+# FSM Parameters
+VOID_ZONE = 0
+DANGER_ZONE = 2
+FOOD_ZONE = 1
+NEST_ZONE = 3
+
+# Energy parameters
+INIT_ENERGY = 1000
+ENERGY_FOOD = 500
+
 
 function init() {
   math.rng.setseed(id)
+  has_food = 0
+  is_stuck = 0
+  energy = INIT_ENERGY
   reset_random_walk()
 }
 
 function step() {
-	random_walk()
+	if (is_stuck) {
+		return
+	}
+
+	current_zone = get_zone(id)
+	# If we are in the base, drop food and rotate until we face right
+	if (current_zone == NEST_ZONE) {
+		# Drop food if we have any
+		drop_food()
+		# Rotate until facing right
+		leave_nest()
+	} else if (current_zone == DANGER_ZONE) {
+		# Get stuck and send location to neighbours
+		set_wheels(0.0, 0.0)
+		is_stuck = 1
+	} else if (current_zone == FOOD_ZONE or has_food == 1) { 
+		# Pick Up food and rotate to left to go back to nest
+		if (has_food == 0) {
+			has_food = 1
+		}
+		move_with_avoidance(goto_nest)
+	} else if (current_zone == VOID_ZONE) {
+		# Walk randomly looking for food
+		move_with_avoidance(random_walk)
+	}
 }
 
+
+# Rotate robot until facing to the left and return to nest
+function goto_nest() {
+	if ((pose.orientation.yaw < 3.0) and (pose.orientation.yaw > -3.0)) { 
+		if (pose.orientation.yaw < 0) {
+			set_wheels(10.0, -10.0)
+		} else {
+			set_wheels(-10.0, 10.0)
+		}
+	} else {
+		gotop(SPEED, 0.0)
+	}
+}
+
+# Get out of the nest by rotating towards the right and going straight
+function leave_nest() {
+	if (pose.orientation.yaw > NEST_THRESHOLD or pose.orientation.yaw < -NEST_THRESHOLD) { 
+		if (pose.orientation.yaw < 0) {
+			set_wheels(-10.0, 10.0)
+		} else {
+			set_wheels(10.0, -10.0)
+		}
+	} else {
+		gotop(SPEED, 0.0)
+	}
+}
+
+
+# Drop food and gain energy
+function drop_food() {
+	if (has_food) {
+		energy = energy + ENERGY_FOOD
+		has_food = 0
+	}
+}
+
+# Perform a random walk with obstacle avoidance
+function move_with_avoidance(desired_move) {
+	index = check_avoidance()
+	if (index == -1) {
+		desired_move()
+	} else {
+		if (index < 4) {
+			angular_vel_avoid = -ANGULAR_SPEED_AVOID
+		} else {
+			angular_vel_avoid = ANGULAR_SPEED_AVOID
+		}
+		gotop(SPEED / 4.0, angular_vel_avoid)
+	}
+}
+
+# Action to move according to a Random Walk
 function random_walk() {
-	idx = check_avoidance()
-	if (idx == -1) {
-		gotop(SPEED, get_angular_vel_random())
-	} else {
-		gotop(SPEED / 4.0, get_angular_vel_avoid(idx))
-	}
-}
-
-# Get angular velocity if we need to turn
-function get_angular_vel_avoid() {
-	if (idx < 4) {
-		return -ANGULAR_SPEED_AVOID
-	} else {
-		return ANGULAR_SPEED_AVOID
-	}
-}
-
-# Function to compute the random angular velocity when doing a random walk
-function get_angular_vel_random() {
   random_steps = random_steps + 1
   if (random_steps <= next_random_update) {
     current_angular_vel = angular_vel * gaussian(random_steps - (next_random_update / 2))
   } else {
     current_angular_vel = reset_random_walk()
   }
-  return current_angular_vel
+  gotop(SPEED, current_angular_vel)
 }
 
 # Function to reset random walk
@@ -84,14 +154,6 @@ function gaussian(x) {
 function logg(str, rid) {
   if (id == rid) {
     log(str)
-  }
-}
-
-function sign(num) {
-  if (num < 0.0) {
-    return -1.0;
-  } else {
-    return 1.0;
   }
 }
 
