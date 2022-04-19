@@ -42,6 +42,8 @@ private:
   Real m_fDangerZoneRadius;
 
   CRange<Real> m_cForagingArenaSideX, m_cForagingArenaSideY;
+  CRange<Real> m_cDangerZoneSideX, m_cDangerZoneSideY;
+
   std::vector<CVector2> m_cFoodPos;
   std::vector<CVector2> m_cDangerPos;
   CFloorEntity *m_pcFloor;

@@ -2,3 +2,4 @@
 *.bdb
 build/*
 foraging.txt
+experiments/*

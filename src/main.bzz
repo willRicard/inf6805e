@@ -20,38 +20,67 @@ DANGER_ZONE = 2
 FOOD_ZONE = 1
 NEST_ZONE = 3
 
-# Energy parameters
-INIT_ENERGY = 1000
-ENERGY_FOOD = 1000
+# food parameters
+FOOD_REWARD = 10
+# Experiment format: experiment_{recovery_steps}_{fault_mapping_on}_{random_seed}
+FILENAME = "./experiments/experiment_500_0_92"
+HEADER = "timestep, food, is_stuck"
 
 # Fault_mapping Parameters
-FAULT_MAPPING_ON = 1
+FAULT_MAPPING_ON = 0
+RECOVERY_STEPS = 500
+IMMUNITY_STEPS = 30
 
 function init() {
+
+	# File initialization
+	filename = string.concat(FILENAME, "/results_", string.tostring(id), ".csv")
+	result_file = io.fopen(filename, "w")
+	io.fwrite(result_file, "timestep,", "food,", "is_stuck")
+	io.fclose(result_file)
+
+	# Variable initializations
 	math.rng.setseed(id)
 	has_food = 0
 	is_stuck = 0
-	energy = INIT_ENERGY
+	food = 0
+	timestep = 0
+	recovering = 0
+	immunity = 0
+
+	# Initializing the map
+	stmg = stigmergy.create(0)
+
+	# Start random walk
 	reset_random_walk()
 
-	stmg = stigmergy.create(0)
-	stmg.put(id, {.x = 1000.0, .y=1000.0})
-	map = {}
 }
 
 function step() {
+	if (timestep < 10000){
+		write_to_file()
+	}
 
-	# If we are stuck, not allowed to do any action
-	if (is_stuck) {
+	timestep = timestep + 1
+
+	# If we are stuck, not allowed to do any action and wait for recovery
+	if (recovering > 0) {
+		recovering = recovering - 1
 		return
 	}
 
-	# Energy expenditure
-	energy = energy - 1
-	if (energy <= 0) {
-		is_stuck = 1
-		set_wheels(0.0, 0.0)
-		return 
+	# If we have recovered, we are not stuck anymore and we are immune for a short while
+	if (is_stuck == 1) { 
+		immunity = IMMUNITY_STEPS
+		is_stuck = 0
+		set_leds(255, 255, 0)
+	}
+
+	# If we are immune, continue the random walk
+	if (immunity > 0) {
+		immunity = immunity - 1
+		move_with_avoidance(random_walk)
+		return
 	}
 
 	current_zone = get_zone(id)
@@ -64,18 +93,36 @@ function step() {
 	} else if (current_zone == DANGER_ZONE) {
 		# Get stuck and send location to neighbours
 		set_wheels(0.0, 0.0)
-		stmg.put(id, {.x = pose.position.x, .y = pose.position.y})
+		next_stmg_pos = stmg.size()
+		stmg.put(next_stmg_pos, {.x = pose.position.x, .y = pose.position.y})
 		is_stuck = 1
+		recovering = RECOVERY_STEPS
+		set_leds(255, 0, 0)
 	} else if (current_zone == FOOD_ZONE or has_food > 0) { 
 		# Pick Up food and rotate to left to go back to nest
 		if (current_zone == FOOD_ZONE) {
 			has_food = has_food + 1
 		}
+		set_leds(0, 0, 255)
 		move_with_avoidance(goto_nest)
 	} else if (current_zone == VOID_ZONE) {
 		# Walk randomly looking for food
 		move_with_avoidance(random_walk)
+		set_leds(0, 255, 0)
+
 	}
+}
+
+function write_to_file() {
+	
+	# Open file in append mode
+	result_file = io.fopen(filename, "a")
+
+	# Write a line in the file
+	io.fwrite(result_file, timestep, ",", food, ",", is_stuck)
+
+	# Close the file
+	io.fclose(result_file)
 }
 
 
@@ -105,10 +152,10 @@ function leave_nest() {
 	}
 }
 
-# Drop food and gain energy
+# Drop food and gain food
 function drop_food() {
 	if (has_food) {
-		energy = energy + has_food * ENERGY_FOOD
+		food = food + FOOD_REWARD * has_food
 		has_food = 0
 	}
 }
@@ -119,7 +166,7 @@ function move_with_avoidance(desired_move) {
 	index = check_avoidance()
 	if (index == -1) {
 		danger_zone = check_danger_zone()
-		if (danger_zone.x != 1000.0 and danger_zone.y != 1000.0) {
+		if (danger_zone.x != 1000.0 and danger_zone.y != 1000.0 and FAULT_MAPPING_ON == 1) {
 			forward_vec = {.x = pose.position.x + (0.3 * math.cos(pose.orientation.yaw)), 
 						   .y = pose.position.y + (0.3 * math.sin(pose.orientation.yaw))}
 			vec_robot = vec_sub(forward_vec, pose.position)
@@ -152,7 +199,7 @@ function move_with_avoidance(desired_move) {
 function check_danger_zone() {
 	var smallest_distance = 1000.0
 	var closest_point = {.x = 1000.0, .y = 1000.0}
-	for (i=0, i<NUM_ROBOTS, i=i+1) {
+	for (i=0, i<stmg.size(), i=i+1) {
 		if (i != id) {
 			danger_zone = stmg.get(i)
 			if (danger_zone != nil) {
@@ -164,7 +211,6 @@ function check_danger_zone() {
 					}
 				}
 			}
-			
 		}
 	}
 	return closest_point

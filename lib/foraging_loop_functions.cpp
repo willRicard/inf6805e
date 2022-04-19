@@ -24,6 +24,7 @@ void SFoodData::Reset() {
 
 CForagingLoopFunctions::CForagingLoopFunctions()
     : m_cForagingArenaSideX(-1.6f, 1.6f), m_cForagingArenaSideY(-1.6f, 1.6f),
+      m_cDangerZoneSideX(-1.6, 0.0), m_cDangerZoneSideY(-1.4, 1.4),
       m_pcFloor(NULL), m_pcRNG(NULL), m_unCollectedFood(0), m_nEnergy(0),
       m_unEnergyPerFoodItem(1), m_unEnergyPerWalkingRobot(1) {}
 
@@ -58,8 +59,8 @@ void CForagingLoopFunctions::Init(TConfigurationNode &t_node) {
 
     // Distribute the Danger zones uniformly
     for (UInt32 i = 0; i < unDangerZones; ++i) {
-      m_cDangerPos.push_back(CVector2(m_pcRNG->Uniform(m_cForagingArenaSideX),
-                                    m_pcRNG->Uniform(m_cForagingArenaSideY)));
+      m_cDangerPos.push_back(CVector2(m_pcRNG->Uniform(m_cDangerZoneSideX),
+                                    m_pcRNG->Uniform(m_cDangerZoneSideY)));
     }
 
     /* Get the output file name from XML */
