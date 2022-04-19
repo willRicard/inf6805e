@@ -23,7 +23,7 @@ void SFoodData::Reset() {
 }
 
 CForagingLoopFunctions::CForagingLoopFunctions()
-    : m_cForagingArenaSideX(-1.6f, 1.7f), m_cForagingArenaSideY(-1.7f, 1.7f),
+    : m_cForagingArenaSideX(-1.6f, 1.6f), m_cForagingArenaSideY(-1.6f, 1.6f),
       m_pcFloor(NULL), m_pcRNG(NULL), m_unCollectedFood(0), m_nEnergy(0),
       m_unEnergyPerFoodItem(1), m_unEnergyPerWalkingRobot(1) {}
 

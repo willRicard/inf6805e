@@ -3,7 +3,7 @@
   <framework>
     <system threads="0" />
     <experiment length="0" ticks_per_second="10"
-    random_seed="90" />
+    random_seed="91" />
   </framework>
   <controllers>
     <foraging_buzz_controller_kheperaiv id="faultMap"
@@ -17,7 +17,7 @@
         <kheperaiv_proximity implementation="default"
         show_rays="false" />
         <range_and_bearing implementation="medium" medium="rab"
-        show_rays="false" noise_std_dev="0" />
+        show_rays="true" noise_std_dev="0" />
         <positioning implementation="default" />
       </sensors>
       <params bytecode_file="build/main.bo"
@@ -31,7 +31,7 @@
   <loop_functions library="build/libforaging_loop_functions"
   label="foraging_loop_functions">
     <foraging items="50" radius="0.05" energy_per_item="1000"
-    energy_per_walking_robot="1" output="foraging.txt" dangerzones="10"
+    energy_per_walking_robot="1" output="foraging.txt" dangerzones="7"
     radiusdanger="0.13"/>
   </loop_functions>
   <arena size="5, 5, 2" center="0,0,1">
@@ -52,7 +52,7 @@
       <position method="uniform" min="-2,-2,0" max="-1.8,2,0" />
       <orientation method="constant" values="0,0,0"/>
       <entity quantity="10" max_trials="100">
-        <kheperaiv id="kiv">
+        <kheperaiv id="kiv" rab_data_size="200" rab_range="1">
           <controller config="faultMap" />
         </kheperaiv>
       </entity>
